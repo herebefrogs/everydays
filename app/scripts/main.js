@@ -38,7 +38,7 @@ var splitTime = function() {
   var months = now.getMonth() + days / 12;
   time.push(months * TWO_PI / 12 + START);
 
-  console.log(seconds, minutes, hours, days, months);
+  //console.log(seconds, minutes, hours, days, months);
 
   return time;
 };
@@ -48,23 +48,23 @@ var update = function(e) {
 
   seconds.graphics.clear()
                   .setStrokeStyle(8, 'round')
-                  .beginStroke('red')
+                  .beginStroke('#00BCD4')
                   .arc(100, 100, 50, START, time[SECONDS], false);
   minutes.graphics.clear()
                   .setStrokeStyle(8, 'round')
-                  .beginStroke('green')
+                  .beginStroke('#CDDC39')
                   .arc(100, 100, 60, START, time[MINUTES], false);
   hours.graphics.clear()
                 .setStrokeStyle(8, 'round')
-                .beginStroke('blue')
+                .beginStroke('#FFEB3B')
                 .arc(100, 100, 70, START, time[HOURS], false);
   days.graphics.clear()
                .setStrokeStyle(8, 'round')
-               .beginStroke('yellow')
+               .beginStroke('#FF9800')
                .arc(100, 100, 80, START, time[DAYS], false);
   months.graphics.clear()
                  .setStrokeStyle(8, 'round')
-                 .beginStroke('purple')
+                 .beginStroke('#FF5722')
                  .arc(100, 100, 90, START, time[MONTHS], false);
 
   stage.update();
