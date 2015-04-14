@@ -1,5 +1,7 @@
 var stage, seconds, minutes, hours, days, months;
 
+var start;
+
 var START = -Math.PI / 2;
 var TWO_PI = 2 * Math.PI;
 var SECONDS = 0;
@@ -7,7 +9,6 @@ var MINUTES = 1;
 var HOURS = 2;
 var DAYS = 3;
 var MONTHS = 4;
-
 
 var init = function() {
   createjs.Ticker.setFPS(30);
@@ -38,34 +39,30 @@ var splitTime = function() {
   var months = now.getMonth() + days / 12;
   time.push(months * TWO_PI / 12 + START);
 
-  //console.log(seconds, minutes, hours, days, months);
-
   return time;
+};
+
+var drawCircle = function(shape, color, angle, radius) {
+  start = START;
+
+  if (START < angle && angle <= TWO_PI / 60 * 0.5 + START) {
+    start = ((angle - START) * 60 / TWO_PI) * TWO_PI / 0.5 + START;
+  }
+
+  shape.graphics.clear()
+                .setStrokeStyle(8, 'round')
+                .beginStroke(color)
+                .arc(100, 100, radius, start, angle, false);
 };
 
 var update = function(e) {
   var time = splitTime();
 
-  seconds.graphics.clear()
-                  .setStrokeStyle(8, 'round')
-                  .beginStroke('#00BCD4')
-                  .arc(100, 100, 50, START, time[SECONDS], false);
-  minutes.graphics.clear()
-                  .setStrokeStyle(8, 'round')
-                  .beginStroke('#CDDC39')
-                  .arc(100, 100, 60, START, time[MINUTES], false);
-  hours.graphics.clear()
-                .setStrokeStyle(8, 'round')
-                .beginStroke('#FFEB3B')
-                .arc(100, 100, 70, START, time[HOURS], false);
-  days.graphics.clear()
-               .setStrokeStyle(8, 'round')
-               .beginStroke('#FF9800')
-               .arc(100, 100, 80, START, time[DAYS], false);
-  months.graphics.clear()
-                 .setStrokeStyle(8, 'round')
-                 .beginStroke('#FF5722')
-                 .arc(100, 100, 90, START, time[MONTHS], false);
+  drawCircle(seconds, '#00BCD4', time[SECONDS], 50);
+  drawCircle(minutes, '#CDDC39', time[MINUTES], 60);
+  drawCircle(hours, '#FFEB3B', time[HOURS], 70);
+  drawCircle(days, '#FF9800', time[DAYS], 80);
+  drawCircle(months, '#FF5722', time[MONTHS], 90);
 
   stage.update();
 };
