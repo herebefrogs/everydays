@@ -1,9 +1,33 @@
+'use strict';
+
 var stage, seconds, minutes, hours, days, months;
-
-var start;
-
-var START = -Math.PI / 2;
 var TWO_PI = 2 * Math.PI;
+
+// debug help
+var DEBUG = true;
+var DebugDate = function() {
+  var inputs = {};
+  [ 'seconds', 'minutes', 'hours', 'days', 'months' ].forEach(function(key) {
+    inputs[key] = document.getElementById(key);
+    inputs[key].style.display = DEBUG ? 'block' : 'none';
+  });
+
+  return {
+    getMilliseconds: function() {
+      return parseFloat(inputs['seconds'].value)  - this.getSeconds();
+    },
+    getSeconds: function() {
+      return Math.floor(parseFloat(inputs['seconds'].value));
+    },
+    getMinutes: function() { return parseInt(inputs['minutes'].value); },
+    getHours: function() { return parseInt(inputs['hours'].value); },
+    getDate: function() { return parseInt(inputs['days'].value); },
+    getMonth: function() { return parseInt(inputs['months'].value); },
+  };
+};
+var DateFactory = DEBUG ? DebugDate : Date;
+// end debug help
+
 var SECONDS = 0;
 var MINUTES = 1;
 var HOURS = 2;
@@ -21,7 +45,7 @@ var init = function() {
 
 
   stage = new createjs.Stage('canvas');
-  container = new createjs.Container();
+  var container = new createjs.Container();
   container.x = stage.canvas.width / 2;
   container.y = stage.canvas.height / 2;
   container.rotation = -90;
@@ -29,9 +53,8 @@ var init = function() {
   stage.addChild(container);
 }
 
-var splitTime = function() {
+var splitTime = function(now) {
   var time = [];
-  var now = new Date();
 
   var seconds = (now.getSeconds() + now.getMilliseconds() / 1000);
   time.push(seconds * TWO_PI / 60);
@@ -49,7 +72,7 @@ var splitTime = function() {
 };
 
 var drawCircle = function(shape, color, angle, radius) {
-  start = 0;
+  var start = 0;
 
   if (0 < angle && angle <= TWO_PI / 60 * 0.5) {
     start = (angle * 60 / TWO_PI) * TWO_PI / 0.5;
@@ -62,7 +85,8 @@ var drawCircle = function(shape, color, angle, radius) {
 };
 
 var update = function(e) {
-  var time = splitTime();
+  var now = new DateFactory();
+  var time = splitTime(now);
 
   drawCircle(seconds, '#00BCD4', time[SECONDS], 50);
   drawCircle(minutes, '#CDDC39', time[MINUTES], 60);
