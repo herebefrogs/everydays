@@ -4,7 +4,7 @@ var stage, seconds, minutes, hours, days, months;
 var TWO_PI = 2 * Math.PI;
 
 // debug help
-var DEBUG = true;
+var DEBUG = false;
 var DebugDate = function() {
   var inputs = {};
   [ 'seconds', 'minutes', 'hours', 'days', 'months' ].forEach(function(key) {
@@ -28,11 +28,6 @@ var DebugDate = function() {
 var DateFactory = DEBUG ? DebugDate : Date;
 // end debug help
 
-var SECONDS = 0;
-var MINUTES = 1;
-var HOURS = 2;
-var DAYS = 3;
-var MONTHS = 4;
 
 var init = function() {
   createjs.Ticker.setFPS(30);
@@ -43,7 +38,6 @@ var init = function() {
   days = new createjs.Shape();
   months = new createjs.Shape();
 
-
   stage = new createjs.Stage('canvas');
   var container = new createjs.Container();
   container.x = stage.canvas.width / 2;
@@ -51,48 +45,62 @@ var init = function() {
   container.rotation = -90;
   container.addChild(seconds, minutes, hours, days, months);
   stage.addChild(container);
-}
+};
+
 
 var splitTime = function(now) {
-  var time = [];
+  var time = {
+    seconds: {},
+    minutes: {},
+    hours: {},
+    days: {},
+    months: {}
+  };
 
-  var seconds = (now.getSeconds() + now.getMilliseconds() / 1000);
-  time.push(seconds * TWO_PI / 60);
-  var minutes = now.getMinutes() + seconds / 60;
-  time.push(minutes * TWO_PI / 60);
-  var hours = now.getHours() + minutes / 24;
-  time.push(hours * TWO_PI / 24);
+  time.seconds.value = now.getSeconds();
+  time.seconds.ts = time.seconds.value + now.getMilliseconds() / 1000;
+  time.seconds.angle = time.seconds.ts * TWO_PI / 60;
+  time.minutes.value = now.getMinutes();
+  time.minutes.ts = time.minutes.value + time.seconds.ts / 60;
+  time.minutes.angle = time.minutes.ts * TWO_PI / 60;
+  time.hours.value = now.getHours();
+  time.hours.ts = time.hours.value + time.minutes.ts / 24;
+  time.hours.angle = time.hours.ts * TWO_PI / 24;
   // TODO 28, 29, 30 or 31 based on Month/(leap) Year
-  var days = now.getDate() + hours / 30;
-  time.push(days * TWO_PI / 30);
-  var months = now.getMonth() + days / 12;
-  time.push(months * TWO_PI / 12);
+  time.days.value = now.getDate();
+  time.days.ts = time.days.value + time.hours.ts / 30;
+  time.days.angle = time.days.ts * TWO_PI / 30;
+  time.months.value = now.getMonth();
+  time.months.ts = time.months.value + time.days.ts / 12;
+  time.months.angle = time.months.ts * TWO_PI / 12;
 
   return time;
 };
 
-var drawCircle = function(shape, color, angle, radius) {
+
+var drawCircle = function(shape, color, time, seconds, radius) {
   var start = 0;
 
-  if (0 < angle && angle <= TWO_PI / 60 * 0.5) {
-    start = (angle * 60 / TWO_PI) * TWO_PI / 0.5;
+  if (time.value === 0 && seconds.ts <= 0.5) {
+    start = seconds.ts * TWO_PI / 0.5;
   }
 
   shape.graphics.clear()
                 .setStrokeStyle(8, 'round')
                 .beginStroke(color)
-                .arc(0, 0, radius, start, angle, false);
+                .arc(0, 0, radius, start, time.angle, false);
 };
 
-var update = function(e) {
+
+var update = function() {
   var now = new DateFactory();
   var time = splitTime(now);
 
-  drawCircle(seconds, '#00BCD4', time[SECONDS], 50);
-  drawCircle(minutes, '#CDDC39', time[MINUTES], 60);
-  drawCircle(hours, '#FFEB3B', time[HOURS], 70);
-  drawCircle(days, '#FF9800', time[DAYS], 80);
-  drawCircle(months, '#FF5722', time[MONTHS], 90);
+  drawCircle(seconds, '#00BCD4', time.seconds, time.seconds, 50);
+  drawCircle(minutes, '#CDDC39', time.minutes, time.seconds, 60);
+  drawCircle(hours, '#FFEB3B', time.hours, time.seconds, 70);
+  drawCircle(days, '#FF9800', time.days, time.seconds, 80);
+  drawCircle(months, '#FF5722', time.months, time.seconds, 90);
 
   stage.update();
 };
