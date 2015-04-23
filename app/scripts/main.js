@@ -96,8 +96,8 @@ var update = function() {
   var now = new DateFactory();
   var time = splitTime(now);
 
-  drawCircle(seconds, '#00BCD4', time.seconds, time.seconds, 50);
-  drawCircle(minutes, '#CDDC39', time.minutes, time.seconds, 60);
+  drawCircle(seconds, '#00B0FF', time.seconds, time.seconds, 50);
+  drawCircle(minutes, '#AEEA00', time.minutes, time.seconds, 60);
   drawCircle(hours, '#FFEB3B', time.hours, time.seconds, 70);
   drawCircle(days, '#FF9800', time.days, time.seconds, 80);
   drawCircle(months, '#FF5722', time.months, time.seconds, 90);
