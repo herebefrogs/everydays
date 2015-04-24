@@ -4,28 +4,9 @@ var stage, seconds, minutes, hours, days, months;
 var TWO_PI = 2 * Math.PI;
 
 // debug help
-var DEBUG = false;
-var DebugDate = function() {
-  var inputs = {};
-  [ 'seconds', 'minutes', 'hours', 'days', 'months' ].forEach(function(key) {
-    inputs[key] = document.getElementById(key);
-    inputs[key].style.display = DEBUG ? 'block' : 'none';
-  });
-
-  return {
-    getMilliseconds: function() {
-      return parseFloat(inputs['seconds'].value)  - this.getSeconds();
-    },
-    getSeconds: function() {
-      return Math.floor(parseFloat(inputs['seconds'].value));
-    },
-    getMinutes: function() { return parseInt(inputs['minutes'].value); },
-    getHours: function() { return parseInt(inputs['hours'].value); },
-    getDate: function() { return parseInt(inputs['days'].value); },
-    getMonth: function() { return parseInt(inputs['months'].value); },
-  };
-};
-var DateFactory = DEBUG ? DebugDate : Date;
+var offset = document.getElementById('offset');
+var DEBUG = true;
+offset.style.display = DEBUG ? 'block' : 'none';
 // end debug help
 
 
@@ -93,7 +74,7 @@ var drawCircle = function(shape, color, time, seconds, radius) {
 
 
 var update = function() {
-  var now = new DateFactory();
+  var now = new Date(Date.now() - offset.value * 1000);
   var time = splitTime(now);
 
   drawCircle(seconds, '#00B0FF', time.seconds, time.seconds, 50);
