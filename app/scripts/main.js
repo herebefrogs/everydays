@@ -5,7 +5,7 @@ var TWO_PI = 2 * Math.PI;
 
 // debug help
 var offset = document.getElementById('offset');
-var DEBUG = true;
+var DEBUG = false;
 offset.style.display = DEBUG ? 'block' : 'none';
 // end debug help
 
@@ -45,14 +45,14 @@ var splitTime = function(now) {
   time.minutes.ts = time.minutes.value + time.seconds.ts / 60;
   time.minutes.angle = time.minutes.ts * TWO_PI / 60;
   time.hours.value = now.getHours();
-  time.hours.ts = time.hours.value + time.minutes.ts / 24;
+  time.hours.ts = time.hours.value + time.minutes.ts / 60;
   time.hours.angle = time.hours.ts * TWO_PI / 24;
-  // TODO 28, 29, 30 or 31 based on Month/(leap) Year
   time.days.value = now.getDate();
-  time.days.ts = time.days.value + time.hours.ts / 30;
+  time.days.ts = time.days.value + time.hours.ts / 24;
+  // TODO 28, 29, 30 or 31 based on Month/(leap) Year
   time.days.angle = time.days.ts * TWO_PI / 30;
   time.months.value = now.getMonth();
-  time.months.ts = time.months.value + time.days.ts / 12;
+  time.months.ts = time.months.value + time.days.ts / 30;
   time.months.angle = time.months.ts * TWO_PI / 12;
 
   return time;
