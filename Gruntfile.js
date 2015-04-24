@@ -318,6 +318,12 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin'
       ]
+    },
+    'gh-pages': {
+      options: {
+        base: 'dist'
+      },
+      src: [ '**' ]
     }
   });
 
@@ -377,7 +383,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'newer:jshint',
-    'test',
-    'build'
+    'build',
+    'gh-pages'
   ]);
 };
