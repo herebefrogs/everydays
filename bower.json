@@ -2,8 +2,6 @@
   "name": "clock",
   "private": true,
   "dependencies": {
-    "jquery": "~1.11.1",
-    "easeljs": "~0.8.0",
-    "TweenJS": "~0.6.0"
+    "easeljs": "~0.8.0"
   }
 }
