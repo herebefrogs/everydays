@@ -2,6 +2,6 @@
   "name": "clock",
   "private": true,
   "dependencies": {
-    "easeljs": "~0.8.0"
+    "easeljs": "~0.8.2"
   }
 }
