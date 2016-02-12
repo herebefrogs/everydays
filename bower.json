@@ -2,6 +2,7 @@
   "name": "clock",
   "private": true,
   "dependencies": {
-    "easeljs": "~0.8.2"
+    "easeljs": "~0.8.2",
+    "TweenJS": "~0.6.2"
   }
 }
