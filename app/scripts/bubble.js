@@ -19,8 +19,8 @@ var MIN_CIRCLES = 2;
 var MAX_CIRCLES = 10;
 var MIN_X = 0.2;
 var MAX_X = 0.8;
-var MIN_DURATION = 15000;
-var MAX_DURATION = 45000;
+var MIN_DURATION = 15; // in seconds
+var MAX_DURATION = 45;
 
 // max excluded
 var random = function(min, max) {
@@ -83,7 +83,7 @@ var createCircle = function(color, size, focus, position) {
   shape.x = position.x;
   shape.y = position.y;
 
-  var duration = randomInt(MIN_DURATION, MAX_DURATION);
+  var duration = randomInt(MIN_DURATION, MAX_DURATION) * 1000;
   var dest_x = pickX();
   var dest_y = pickY(size, shape.y < 0);
 
