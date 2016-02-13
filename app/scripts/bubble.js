@@ -36,7 +36,7 @@ var pickColor = function() {
   return COLORS[randomInt(1, COLORS.length) - 1];
 };
 
-var pickSize = function() {
+var pickRadius = function() {
   return randomInt(MIN_SIZE, MAX_SIZE);
 };
 
@@ -48,16 +48,16 @@ var pickX = function() {
   return randomInt(stage.canvas.width * MIN_X, stage.canvas.width * MAX_X);
 };
 
-var pickY = function(size, is_down) {
-  return is_down ? stage.canvas.height + size : -size
+var pickY = function(radius, is_down) {
+  return is_down ? stage.canvas.height + radius : -radius
 };
 
-var pickPosition = function(size) {
+var pickPosition = function(radius) {
   var is_down = randomInt(0, 1) === 0;
 
   return {
     x: pickX(),
-    y: pickY(size, is_down)
+    y: pickY(radius, is_down)
   };
 };
 
@@ -66,7 +66,7 @@ var rgbaColor = function(color, alpha) {
 };
 
 
-var createCircle = function(color, size, focus, position) {
+var createCircle = function(color, radius, focus, position) {
   var shape = new createjs.Shape();
 
   var plainColor = rgbaColor(color, 1);
@@ -75,8 +75,8 @@ var createCircle = function(color, size, focus, position) {
                   [ plainColor, plainColor, transparentColor ],
                   [ 0, focus, 1 ],
                   0, 0, 0,
-                  0, 0, size)
-                .drawCircle(0, 0, size);
+                  0, 0, radius)
+                .drawCircle(0, 0, radius);
 
   shape.alpha = focus;
   shape.compositeOperation = 'lighter';
@@ -85,7 +85,7 @@ var createCircle = function(color, size, focus, position) {
 
   var duration = randomInt(MIN_DURATION, MAX_DURATION) * 1000;
   var dest_x = pickX();
-  var dest_y = pickY(size, shape.y < 0);
+  var dest_y = pickY(radius, shape.y < 0);
 
   var clearTweens = function() {
     shape.activeTweens -= 1;
@@ -107,10 +107,10 @@ var createCircle = function(color, size, focus, position) {
 
 var addCircle = function() {
     var color = pickColor();
-    var size = pickSize();
+    var radius = pickRadius();
     var focus = pickFocus();
-    var position = pickPosition(size);
-    container.addChild(createCircle(color, size, focus, position));
+    var position = pickPosition(radius);
+    container.addChild(createCircle(color, radius, focus, position));
 };
 
 var init = function() {
