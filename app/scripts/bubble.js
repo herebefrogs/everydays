@@ -2,6 +2,7 @@
 
 var stage;
 var container;
+var elapsed_time = 0;
 
 var COLORS = [
   { r: 255, g: 0, b: 0 },
@@ -11,16 +12,18 @@ var COLORS = [
   { r: 0, g: 255, b: 255 },
   { r: 255, g: 0, b: 255 }
 ];
-var MIN_SIZE = 20;
-var MAX_SIZE = 200;
-var MIN_FOCUS = 0.5;
-var MAX_FOCUS = 1;
-var MIN_CIRCLES = 2;
-var MAX_CIRCLES = 10;
+var MIN_SIZE = 50;
+var MAX_SIZE = 100;
+var MIN_FOCUS = 0.5; // somewhat blurry outline
+var MAX_FOCUS = 1;   // crisp outline
+var MIN_CIRCLES = 10;
+var MAX_CIRCLES = 20;
+var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
 var MIN_X = 0.2;
 var MAX_X = 0.8;
 var MIN_DURATION = 15; // in seconds
 var MAX_DURATION = 45;
+var MIN_TIME_ADDING_CIRCLE_ATTEMPT = 1; // in seconds
 
 // max excluded
 var random = function(min, max) {
@@ -139,10 +142,25 @@ var init = function() {
   }
 };
 
-var update = function() {
+var update = function(event) {
   if (container.numChildren < MAX_CIRCLES) {
-    // add some backoff probability, the less children the more probable one is added
-    addCircle();
+    elapsed_time += event.delta / 1000;
+    // more circles could be added
+    if (elapsed_time > MIN_TIME_ADDING_CIRCLE_ATTEMPT) {
+      // it's been more than 1 second since the last attempt to add a circle
+
+      // attempt to add a circle
+      // the less circles there is, the more probable one will be added
+      var circle_capacity_delta_left = MAX_CIRCLES - container.numChildren;
+      var roll = random(0, CIRCLE_CAPACITY_DELTA);
+      if (circle_capacity_delta_left > roll) {
+        addCircle();
+      }
+
+      elapsed_time = 0;
+    }
+  } else {
+    elapsed_time = 0;
   }
 
   stage.update();
