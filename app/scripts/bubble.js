@@ -30,7 +30,7 @@ var random = function(min, max) {
 // max included
 var randomInt = function(min, max) {
   return Math.floor(random(min, max + 1));
-}
+};
 
 var pickColor = function() {
   return COLORS[randomInt(1, COLORS.length) - 1];
@@ -49,7 +49,7 @@ var pickX = function() {
 };
 
 var pickY = function(radius, is_down) {
-  return is_down ? stage.canvas.height + radius : -radius
+  return is_down ? stage.canvas.height + radius : -radius;
 };
 
 var pickPosition = function(radius) {
@@ -110,7 +110,21 @@ var addCircle = function() {
     var radius = pickRadius();
     var focus = pickFocus();
     var position = pickPosition(radius);
-    container.addChild(createCircle(color, radius, focus, position));
+
+    var added = false;
+    // add most focused circle at top of display list (aka last child)
+    // add most unfocused circle at the bottom of the display list (aka first child)
+    for (var i = container.numChildren - 1; i >= 0; i--) {
+      if (container.getChildAt(i).alpha < focus) {
+        container.addChildAt(createCircle(color, radius, focus, position), i + 1);
+        added = true;
+        break;
+      }
+    }
+    if (!added || !container.numChildren) {
+      // add unfocused circle frist or add the first circle
+      container.addChildAt(createCircle(color, radius, focus, position), 0);
+    }
 };
 
 var init = function() {
