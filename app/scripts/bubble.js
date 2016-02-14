@@ -5,17 +5,28 @@ var container;
 var elapsed_time = 0;
 
 var COLORS = [
-  { r: 255, g: 0, b: 0 },
-  { r: 0, g: 255, b: 0 },
-  { r: 0, g: 0, b: 255 },
-  { r: 255, g: 255, b: 0 },
-  { r: 0, g: 255, b: 255 },
-  { r: 255, g: 0, b: 255 }
+  { r: 118, g: 10, b: 45 },   // red
+  { r: 63, g: 157, b: 41 },   // green
+  { r: 14, g: 153, b: 217 },  // cyan
+  { r: 255, g: 241, b: 118 }, // yellow
+  { r: 106, g: 27, b: 154 }   // purple
+];
+var EASE_X = [
+  createjs.Ease.elasticIn,
+  createjs.Ease.elasticInOut,
+  createjs.Ease.elasticInOut,
+  createjs.Ease.elasticOut,
+];
+var EASE_Y = [
+  createjs.Ease.sineIn,
+  createjs.Ease.sineInOut,
+  createjs.Ease.sineInOut,
+  createjs.Ease.sineOut,
 ];
 var MIN_SIZE = 50;
-var MAX_SIZE = 100;
-var MIN_FOCUS = 0.5; // somewhat blurry outline
-var MAX_FOCUS = 1;   // crisp outline
+var MAX_SIZE = 125;
+var MIN_FOCUS = 0.4;  // somewhat blurry outline
+var MAX_FOCUS = 0.95; // crisp outline
 var MIN_CIRCLES = 10;
 var MAX_CIRCLES = 20;
 var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
@@ -37,6 +48,14 @@ var randomInt = function(min, max) {
 
 var pickColor = function() {
   return COLORS[randomInt(1, COLORS.length) - 1];
+};
+
+var pickEaseX = function() {
+  return EASE_X[randomInt(1, EASE_X.length) - 1];
+};
+
+var pickEaseY = function() {
+  return EASE_Y[randomInt(1, EASE_Y.length) - 1];
 };
 
 var pickRadius = function() {
@@ -72,6 +91,7 @@ var rgbaColor = function(color, alpha) {
 var createCircle = function(color, radius, focus, position) {
   var shape = new createjs.Shape();
 
+  // render circle
   var plainColor = rgbaColor(color, 1);
   var transparentColor = rgbaColor(color, 0);
   shape.graphics.beginRadialGradientFill(
@@ -86,6 +106,7 @@ var createCircle = function(color, radius, focus, position) {
   shape.x = position.x;
   shape.y = position.y;
 
+  // animate circle
   var duration = randomInt(MIN_DURATION, MAX_DURATION) * 1000;
   var dest_x = pickX();
   var dest_y = pickY(radius, shape.y < 0);
@@ -99,9 +120,9 @@ var createCircle = function(color, radius, focus, position) {
     }
   };
 
-  createjs.Tween.get(shape).to({ x: dest_x }, duration, createjs.Ease.elasticInOut)
+  createjs.Tween.get(shape).to({ x: dest_x }, duration, pickEaseX())
                            .call(clearTweens);
-  createjs.Tween.get(shape).to({ y: dest_y }, duration, createjs.Ease.sineInOut)
+  createjs.Tween.get(shape).to({ y: dest_y }, duration, pickEaseY())
                            .call(clearTweens);
   shape.activeTweens = 2;
 
