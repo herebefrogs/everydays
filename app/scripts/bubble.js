@@ -1,7 +1,11 @@
 'use strict';
 
-var stage;
-var container;
+createjs.Ticker.setFPS(30);
+
+var stage = new createjs.Stage('canvas');
+var container = new createjs.Container();
+stage.addChild(container);
+
 var elapsed_time = 0;
 
 var COLORS = [
@@ -30,8 +34,8 @@ var MAX_FOCUS = 0.95; // crisp outline
 var MIN_CIRCLES = 10;
 var MAX_CIRCLES = 20;
 var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
-var MIN_X = 0.2;
-var MAX_X = 0.8;
+var MIN_X = 0.25;     // should not allow the biggest circle to be clipped
+var MAX_X = 0.75;
 var MIN_DURATION = 15; // in seconds
 var MAX_DURATION = 45;
 var MIN_TIME_ADDING_CIRCLE_ATTEMPT = 1; // in seconds
@@ -152,12 +156,27 @@ var addCircle = function() {
 };
 
 var init = function() {
-  createjs.Ticker.setFPS(30);
+  // resize canvas to fit screen
+  var canvas_style = document.getElementById('canvas').style;
+  var width = window.innerWidth;
+  var height = window.innerHeight;
 
-  stage = new createjs.Stage('canvas');
-  container = new createjs.Container();
-  stage.addChild(container);
+  var normalized_width = 600 * height / 600;
+  var normalized_height = 600 * width / 600;
 
+  if (width > normalized_width) {
+      canvas_style.width = normalized_width + 'px';
+      canvas_style.height = height + 'px';
+  } else {
+      canvas_style.width = width + 'px';
+      canvas_style.height = normalized_height + 'px';
+  }
+
+  // remove all circles and animation
+  createjs.Tween.removeAllTweens();
+  container.removeAllChildren();
+
+  // add new circles based on new canvas dimensions
   for (var i = randomInt(MIN_CIRCLES, MAX_CIRCLES); i > 0; i--) {
     addCircle();
   }
@@ -187,6 +206,6 @@ var update = function(event) {
   stage.update();
 };
 
-
 init();
 createjs.Ticker.addEventListener('tick', update);
+window.addEventListener('resize', init);
