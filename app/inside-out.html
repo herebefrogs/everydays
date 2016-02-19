@@ -96,8 +96,10 @@
       ];
       var MIN_SIZE = 50;
       var MAX_SIZE = 125;
+      var MID_SIZE = (MIN_SIZE + MAX_SIZE) / 2;
       var MIN_FOCUS = 0.4;  // somewhat blurry outline
       var MAX_FOCUS = 0.95; // crisp outline
+      var MID_FOCUS = (MIN_FOCUS + MAX_FOCUS) / 2;
       var MIN_CIRCLES = 10;
       var MAX_CIRCLES = 20;
       var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
@@ -129,8 +131,14 @@
         return EASE_Y[randomInt(1, EASE_Y.length) - 1];
       };
 
-      var pickRadius = function() {
-        return randomInt(MIN_SIZE, MAX_SIZE);
+      var pickRadius = function(focus) {
+        // unfocused cirlces should be smaller to appear further away
+        // focus circles should be bigger to appear closer
+        if (focus < MID_FOCUS) {
+          return randomInt(MIN_SIZE, MID_SIZE);
+        } else {
+          return randomInt(MID_SIZE, MAX_SIZE);
+        }
       };
 
       var pickFocus = function() {
@@ -202,8 +210,8 @@
 
       var addCircle = function() {
           var color = pickColor();
-          var radius = pickRadius();
           var focus = pickFocus();
+          var radius = pickRadius(focus);
           var position = pickPosition(radius);
 
           var added = false;
