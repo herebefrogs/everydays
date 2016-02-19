@@ -19,6 +19,11 @@
         color: #405261;
       }
 
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+
       #author {
         top: 5px;
         left: 5px;
@@ -91,13 +96,15 @@
       ];
       var MIN_SIZE = 50;
       var MAX_SIZE = 125;
+      var MID_SIZE = (MIN_SIZE + MAX_SIZE) / 2;
       var MIN_FOCUS = 0.4;  // somewhat blurry outline
       var MAX_FOCUS = 0.95; // crisp outline
+      var MID_FOCUS = (MIN_FOCUS + MAX_FOCUS) / 2;
       var MIN_CIRCLES = 10;
       var MAX_CIRCLES = 20;
       var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
-      var MIN_X = 0.25;     // should not allow the biggest circle to be clipped
-      var MAX_X = 0.75;
+      var MIN_X = 0.3;     // should not allow the biggest circle to be clipped
+      var MAX_X = 0.7;
       var MIN_DURATION = 15; // in seconds
       var MAX_DURATION = 45;
       var MIN_TIME_ADDING_CIRCLE_ATTEMPT = 1; // in seconds
@@ -124,8 +131,14 @@
         return EASE_Y[randomInt(1, EASE_Y.length) - 1];
       };
 
-      var pickRadius = function() {
-        return randomInt(MIN_SIZE, MAX_SIZE);
+      var pickRadius = function(focus) {
+        // unfocused cirlces should be smaller to appear further away
+        // focus circles should be bigger to appear closer
+        if (focus < MID_FOCUS) {
+          return randomInt(MIN_SIZE, MID_SIZE);
+        } else {
+          return randomInt(MID_SIZE, MAX_SIZE);
+        }
       };
 
       var pickFocus = function() {
@@ -197,8 +210,8 @@
 
       var addCircle = function() {
           var color = pickColor();
-          var radius = pickRadius();
           var focus = pickFocus();
+          var radius = pickRadius(focus);
           var position = pickPosition(radius);
 
           var added = false;
@@ -219,20 +232,9 @@
 
       var init = function() {
         // resize canvas to fit screen
-        var canvas_style = document.getElementById('canvas').style;
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-
-        var normalized_width = 600 * height / 600;
-        var normalized_height = 600 * width / 600;
-
-        if (width > normalized_width) {
-            canvas_style.width = normalized_width + 'px';
-            canvas_style.height = height + 'px';
-        } else {
-            canvas_style.width = width + 'px';
-            canvas_style.height = normalized_height + 'px';
-        }
+        var canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         // remove all circles and animation
         createjs.Tween.removeAllTweens();
