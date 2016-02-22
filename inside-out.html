@@ -79,7 +79,7 @@
         { r: 118, g: 10, b: 45 },   // red
         { r: 63, g: 157, b: 41 },   // green
         { r: 14, g: 153, b: 217 },  // cyan
-        { r: 255, g: 241, b: 118 }, // yellow
+        { r: 255, g: 233, b: 5 },   // yellow
         { r: 106, g: 27, b: 154 }   // purple
       ];
       var EASE_X = [
@@ -95,11 +95,11 @@
         createjs.Ease.sineOut,
       ];
       var MIN_SIZE = 50;
-      var MAX_SIZE = 125;
+      var MAX_SIZE = 150;
       var MID_SIZE = (MIN_SIZE + MAX_SIZE) / 2;
       var MIN_FOCUS = 0.25;  // somewhat blurry outline
       var MAX_FOCUS = 0.95; // crisp outline
-      var MID_FOCUS = (MIN_FOCUS + MAX_FOCUS) / 2;
+      var MID_FOCUS = (MIN_FOCUS + MAX_FOCUS) * 2 / 3;
       var MIN_CIRCLES = 10;
       var MAX_CIRCLES = 20;
       var CIRCLE_CAPACITY_DELTA = MAX_CIRCLES - MIN_CIRCLES;
@@ -231,6 +231,8 @@
       };
 
       var init = function() {
+        createjs.Ticker.paused = true;
+
         // resize canvas to fit screen
         var canvas = document.getElementById('canvas');
         canvas.width = window.innerWidth;
@@ -244,10 +246,16 @@
         for (var i = randomInt(MIN_CIRCLES, MAX_CIRCLES); i > 0; i--) {
           addCircle();
         }
+
+        createjs.Ticker.paused = false;
       };
 
       var update = function(event) {
-        if (container.numChildren < MAX_CIRCLES) {
+        if (container.numChildren < MIN_CIRCLES) {
+          addCircle();
+          elapsed_time = 0;
+        }
+        else if (container.numChildren < MAX_CIRCLES) {
           elapsed_time += event.delta / 1000;
           // more circles could be added
           if (elapsed_time > MIN_TIME_ADDING_CIRCLE_ATTEMPT) {
@@ -263,8 +271,6 @@
 
             elapsed_time = 0;
           }
-        } else {
-          elapsed_time = 0;
         }
 
         stage.update();
