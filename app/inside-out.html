@@ -251,7 +251,11 @@
       };
 
       var update = function(event) {
-        if (container.numChildren < MAX_CIRCLES) {
+        if (container.numChildren < MIN_CIRCLES) {
+          addCircle();
+          elapsed_time = 0;
+        }
+        else if (container.numChildren < MAX_CIRCLES) {
           elapsed_time += event.delta / 1000;
           // more circles could be added
           if (elapsed_time > MIN_TIME_ADDING_CIRCLE_ATTEMPT) {
@@ -267,8 +271,6 @@
 
             elapsed_time = 0;
           }
-        } else {
-          elapsed_time = 0;
         }
 
         stage.update();
