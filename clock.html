@@ -1,10 +1,168 @@
-<!DOCTYPE html> <html class=no-js> <head> <meta charset=utf-8> <title>clock</title> <meta name=description content=""> <meta name=viewport content="width=device-width"> <link rel="shortcut icon" href=/6df2b309.favicon.ico> <!-- Place favicon.ico and apple-touch-icon.png in the root directory --> <link rel=stylesheet href=styles/e6e2ca0c.clock.css>  <body> <a href=http://createjs.com> <img id=createjs src="images/f05a292a.createjs-logo-horizontal-gray-darker.svg"> </a> <canvas id=canvas width=480 height=320></canvas> <input id=offset style="width: 480px; display: none" type=range min=0 max=3600 step=1 value="0"> <script src=scripts/56b807c9.vendor.js></script> <!-- Google Analytics: change UA-XXXXX-X to be your site's ID.
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Yearly Clock</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="styles/clock.css">
+    <style>
+      body {
+        background: #100000;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      a {
+        position: absolute;
+        text-decoration: none;
+        color: #405261;
+      }
+
+      canvas  {
+        height: 100%;
+      }
+
+      #author {
+        top: 5px;
+        left: 5px;
+      }
+
+      #createjs {
+        bottom: 5px;
+        right: 8px;
+      }
+
+      #createjs img {
+        display: inline;
+        width: 100px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <a id="author" href="http://herebefrogs.com">
+      @herebefrogs
+    </a>
+    <a id="createjs" href="http://createjs.com">
+      Built with <img src="images/createjs-logo-horizontal-gray-darker.svg"/>
+    </a>
+
+    <canvas id="canvas" width="320" height="320"></canvas>
+    <input id="offset" style="width: 480px; display: none;" type="range" min="0" max="3600" step="1" value="0"/>
+
+    <script async="" src="//www.google-analytics.com/analytics.js"></script>
     <script>
-      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-      e.src='//www.google-analytics.com/analytics.js';
-      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-      ga('create','UA-XXXXX-X');ga('send','pageview');
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39675296-3', 'auto');
+      ga('send', 'pageview');
     </script>
-    --> <script src=scripts/340d4de8.clock.js></script>  
+
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+
+    <script>
+      'use strict';
+
+      var stage, container, seconds, minutes, hours, days, months;
+      var TWO_PI = 2 * Math.PI;
+
+      // debug help
+      var offset = document.getElementById('offset');
+      var DEBUG = false;
+      offset.style.display = DEBUG ? 'block' : 'none';
+      // end debug help
+
+
+      var init = function() {
+        createjs.Ticker.setFPS(30);
+
+        seconds = new createjs.Shape();
+        minutes = new createjs.Shape();
+        hours = new createjs.Shape();
+        days = new createjs.Shape();
+        months = new createjs.Shape();
+
+        stage = new createjs.Stage('canvas');
+        container = new createjs.Container();
+        container.x = stage.canvas.width / 2;
+        resize();
+        container.rotation = -90;
+        container.addChild(seconds, minutes, hours, days, months);
+        stage.addChild(container);
+      };
+
+
+      var splitTime = function(now) {
+        var time = {
+          seconds: {},
+          minutes: {},
+          hours: {},
+          days: {},
+          months: {}
+        };
+
+        time.seconds.value = now.getSeconds();
+        time.seconds.ts = time.seconds.value + now.getMilliseconds() / 1000;
+        time.seconds.angle = time.seconds.ts * TWO_PI / 60;
+        time.minutes.value = now.getMinutes();
+        time.minutes.ts = time.minutes.value + time.seconds.ts / 60;
+        time.minutes.angle = time.minutes.ts * TWO_PI / 60;
+        time.hours.value = now.getHours();
+        time.hours.ts = time.hours.value + time.minutes.ts / 60;
+        time.hours.angle = time.hours.ts * TWO_PI / 24;
+        time.days.value = now.getDate();
+        time.days.ts = time.days.value + time.hours.ts / 24;
+        // TODO 28, 29, 30 or 31 based on Month/(leap) Year
+        time.days.angle = time.days.ts * TWO_PI / 30;
+        time.months.value = now.getMonth();
+        time.months.ts = time.months.value + time.days.ts / 30;
+        time.months.angle = time.months.ts * TWO_PI / 12;
+
+        return time;
+      };
+
+
+      var drawCircle = function(shape, color, time, seconds, radius) {
+        var start = 0;
+
+        if (time.value === 0 && seconds.ts <= 0.5) {
+          start = seconds.ts * TWO_PI / 0.5;
+        }
+
+        shape.graphics.clear()
+                      .setStrokeStyle(8, 'round')
+                      .beginStroke(color)
+                      .arc(0, 0, radius, start, time.angle, false);
+      };
+
+      var resize = function() {
+        stage.canvas.height = window.innerHeight;
+        container.y = stage.canvas.height / 2;
+      };
+
+      var update = function() {
+        var now = new Date(Date.now() - offset.value * 1000);
+        var time = splitTime(now);
+
+        drawCircle(seconds, '#00B0FF', time.seconds, time.seconds, 50);
+        drawCircle(minutes, '#AEEA00', time.minutes, time.seconds, 60);
+        drawCircle(hours, '#FFEB3B', time.hours, time.seconds, 70);
+        drawCircle(days, '#FF9800', time.days, time.seconds, 80);
+        drawCircle(months, '#FF5722', time.months, time.seconds, 90);
+
+        stage.update();
+      };
+
+
+      init();
+      createjs.Ticker.addEventListener('tick', update);
+      window.addEventListener('resize', resize);
+    </script>
+</body>
+</html>
