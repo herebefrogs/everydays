@@ -1,4 +1,6 @@
-# everydays
-Cool experiments powered by [CreateJS](http://createjs.com)
+# Lab
 
-- [Clock](http://herebefrogs.github.io/everydays/clock.html)
+Graphic experiments built by [CreateJS](http://createjs.com)
+
+- [Yearly Clock](http://herebefrogs.com/lab/clock.html)
+- [Inside Out bubbly end credits](http://herebefrogs.com/lab/inside-out.html)
