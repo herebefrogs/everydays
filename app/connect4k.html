@@ -129,17 +129,26 @@
       };
 
       var init = function() {
-        // resize canvas to fit screen
-        var canvas = document.getElementById('canvas');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
         stage = new createjs.Stage('canvas');
         container = new createjs.Container();
         stage.addChild(container);
 
-        var x, y;
+        update();
+      };
 
+      var update = function() {
+        // resize canvas to fit screen
+        if (stage.canvas.width !== window.innerWidth ||
+            stage.canvas.height !== window.innerHeight) {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+
+        // remove previous circles
+        container.removeAllChildren();
+
+        // add new ones
+        var x, y;
         for (y = SPACER - RADIUS_THICK_LARGE; y < stage.canvas.height; y += SPACER) {
           for (x = SPACER - RADIUS_THICK_LARGE; x < stage.canvas.width; x += SPACER) {
             createCircle(x, y, randomInt(0, MAX_CIRCLES));
@@ -147,12 +156,13 @@
         }
 
         stage.update();
-      };
+      }
+
+      // regenerate on resize and every X seconds
+      window.addEventListener('resize', update);
+      setInterval(update, 60000);
 
       init();
-      // regenerate on resize and every X seconds
-      window.addEventListener('resize', init);
-      setInterval(init, 60000);
     </script>
 </body>
 </html>
