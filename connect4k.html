@@ -1,0 +1,156 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Connect 4k</title>
+    <meta name="viewport" content="width=device-width">
+    <style>
+      body {
+        background: #041634;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      a {
+        position: absolute;
+        text-decoration: none;
+        color: #405261;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      #author {
+        top: 5px;
+        left: 5px;
+      }
+
+      #createjs {
+        bottom: 5px;
+        right: 8px;
+      }
+
+      #createjs img {
+        display: inline;
+        width: 100px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <a id="author" href="http://herebefrogs.com">
+      @herebefrogs
+    </a>
+    <a id="createjs" href="http://createjs.com">
+      Built with <img src="images/createjs-logo-horizontal-gray-darker.svg"/>
+    </a>
+    <canvas id="canvas" width="600" height="600"></canvas>
+
+    <script async="" src="//www.google-analytics.com/analytics.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39675296-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+
+    <script>
+      'use strict';
+
+      var stage;
+      var container;
+
+      var STROKE_COLOR = '#fff';
+      var SPACER = 50;            // px
+      var STROKE_THIN = 1;        // px
+      var STROKE_THICK = 3;        // px
+      var RADIUS_THIN_SMALL = 5;  // px
+      var RADIUS_THIN_MEDIUM = 10;  // px
+      var RADIUS_THIN_LARGE = 15;  // px
+      var RADIUS_THICK_SMALL = 3;  // px
+      var RADIUS_THICK_MEDIUM = 8;  // px
+      var RADIUS_THICK_LARGE = 13;  // px
+      var MAX_CIRCLES = 56;
+
+      // max excluded
+      var random = function(min, max) {
+        return Math.random() * (max - min) + min;
+      };
+
+      // max included
+      var randomInt = function(min, max) {
+        return Math.floor(random(min, max + 1));
+      }
+
+      var draw = function(shape, stroke, radius) {
+        shape.graphics.setStrokeStyle(stroke)
+                      .beginStroke(STROKE_COLOR)
+                      .drawCircle(0, 0, radius);
+      }
+      var createCircle = function(x, y, id) {
+        var shape = new createjs.Shape();
+
+        // break down the pattern number into a sum of basic patterns
+        if ((id & 1) === 1) {
+          draw(shape, STROKE_THIN, RADIUS_THIN_SMALL);
+        }
+        if ((id & 2) === 2) {
+          draw(shape, STROKE_THIN, RADIUS_THIN_MEDIUM);
+        }
+        if ((id & 4) === 4) {
+          draw(shape, STROKE_THIN, RADIUS_THIN_LARGE);
+        }
+        if ((id & 8) === 8) {
+          draw(shape, STROKE_THICK, RADIUS_THICK_SMALL);
+        }
+        if ((id & 16) === 16) {
+          draw(shape, STROKE_THICK, RADIUS_THICK_MEDIUM);
+        }
+        if ((id & 32) === 32) {
+          draw(shape, STROKE_THICK, RADIUS_THICK_LARGE);
+        }
+
+        shape.x = x;
+        shape.y = y;
+        container.addChild(shape);
+
+        return shape;
+      };
+
+      var init = function() {
+        // resize canvas to fit screen
+        var canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        stage = new createjs.Stage('canvas');
+        container = new createjs.Container();
+        stage.addChild(container);
+
+        var x, y;
+
+        for (y = SPACER - RADIUS_THICK_LARGE; y < stage.canvas.height; y += SPACER) {
+          for (x = SPACER - RADIUS_THICK_LARGE; x < stage.canvas.width; x += SPACER) {
+            createCircle(x, y, randomInt(0, MAX_CIRCLES));
+          }
+        }
+
+        stage.update();
+      };
+
+      init();
+      window.addEventListener('resize', init);
+    </script>
+</body>
+</html>
