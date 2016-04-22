@@ -82,6 +82,7 @@
       var RADIUS_THICK_MEDIUM = 8;  // px
       var RADIUS_THICK_LARGE = 13;  // px
       var MAX_CIRCLES = 56;
+      var INTERVAL = 60000; // in ms
 
       // max excluded
       var random = function(min, max) {
@@ -91,13 +92,56 @@
       // max included
       var randomInt = function(min, max) {
         return Math.floor(random(min, max + 1));
+      };
+
+      var parseQuery = function() {
+        var query = {};
+        if (location.search.length) {
+          var parts = location.search.substring(1).split('&');
+          parts.forEach(function(part) {
+            var pair = part.split('=');
+            var key = pair[0];
+            var newValue = pair.length > 1 ? decodeURIComponent(pair[1]) : undefined;
+
+            if (!query[key]) {
+              query[key] = newValue;
+            } else {
+              var oldValue = query[key];
+              if (typeof(oldValue) === 'object' && oldValue.hasOwnProperty('length')) {
+                oldValue.push(newValue);
+              } else {
+                query[key] = [ oldValue, newValue ];
+              }
+            }
+          });
+        }
+        return query;
+      };
+
+      var packQuery = function(query) {
+        var queryString = '';
+        Object.keys(query).forEach(function(key) {
+          if (queryString.length === 0) {
+            queryString += '?';
+          } else if (queryString.charAt(queryString.length - 1) !== '?') {
+              queryString += '&';
+          }
+
+          queryString += key;
+
+          if (query[key]) {
+            queryString += '=' + encodeURIComponent(query[key]);
+          }
+        });
+        return queryString;
       }
 
       var draw = function(shape, stroke, radius) {
         shape.graphics.setStrokeStyle(stroke)
                       .beginStroke(STROKE_COLOR)
                       .drawCircle(0, 0, radius);
-      }
+      };
+
       var createCircle = function(x, y, id) {
         var shape = new createjs.Shape();
 
@@ -133,6 +177,17 @@
         container = new createjs.Container();
         stage.addChild(container);
 
+        var query = parseQuery();
+        if (query.speed) {
+          var value = parseInt(query.speed);
+          if (!isNaN(value) && value !== INTERVAL) {
+            INTERVAL = parseInt(query.speed);
+          }
+        } else {
+          query.speed = INTERVAL;
+          location.search = packQuery(query);
+        }
+
         update();
       };
 
@@ -158,11 +213,12 @@
         stage.update();
       }
 
+      init();
+
       // regenerate on resize and every X seconds
       window.addEventListener('resize', update);
-      setInterval(update, 60000);
+      setInterval(update, INTERVAL);
 
-      init();
     </script>
 </body>
 </html>
