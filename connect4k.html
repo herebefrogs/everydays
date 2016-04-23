@@ -83,6 +83,7 @@
       var RADIUS_THICK_LARGE = 13;  // px
       var MAX_CIRCLES = 56;
       var INTERVAL = 60000; // in ms
+      var ANIMATED = false;
 
       // max excluded
       var random = function(min, max) {
@@ -94,10 +95,11 @@
         return Math.floor(random(min, max + 1));
       };
 
-      var parseQuery = function() {
+      // convert the query string into a query hash
+      var parseQuery = function(queryString) {
         var query = {};
-        if (location.search.length) {
-          var parts = location.search.substring(1).split('&');
+        if (queryString.length) {
+          var parts = queryString.substring(1).split('&');
           parts.forEach(function(part) {
             var pair = part.split('=');
             var key = pair[0];
@@ -118,6 +120,7 @@
         return query;
       };
 
+      // convert a query hash into a query string
       var packQuery = function(query) {
         var queryString = '';
         Object.keys(query).forEach(function(key) {
@@ -129,12 +132,35 @@
 
           queryString += key;
 
-          if (query[key]) {
+          if (query[key] !== undefined) {
             queryString += '=' + encodeURIComponent(query[key]);
           }
         });
         return queryString;
-      }
+      };
+
+      var setDefaults = function(query) {
+        var queryChanged = false;
+
+        var interval = parseInt(query.interval);
+        if (!isNaN(interval)) {
+          INTERVAL = interval;
+        } else {
+          query.interval = INTERVAL;
+          queryChanged = true;
+        }
+
+        if (query.animated && typeof(query.animated) === 'string') {
+          ANIMATED = query.animated.toLowerCase() === 'true';
+        } else {
+          query.animated = ANIMATED;
+          queryChanged = true;
+        }
+
+        if (queryChanged) {
+          location.search = packQuery(query);
+        }
+      };
 
       var draw = function(shape, stroke, radius) {
         shape.graphics.setStrokeStyle(stroke)
@@ -169,6 +195,25 @@
         shape.y = y;
         container.addChild(shape);
 
+        if (ANIMATED) {
+          shape.scaleX = 0;
+          shape.scaleY = 0;
+          var interval = randomInt(1, INTERVAL);
+          createjs.Tween.get(shape).to({
+                                      scaleX: 1,
+                                      scaleY: 1
+                                    }, interval, createjs.Ease.circOut)
+                                   .to({
+                                      scaleX: 0,
+                                      scaleY: 0
+                                    }, interval, createjs.Ease.circIn)
+                                   .call(function() {
+                                     container.removeChild(shape);
+                                     createjs.Tween.removeTweens(shape);
+                                     createCircle(x, y, randomInt(0, MAX_CIRCLES));
+                                   });
+        }
+
         return shape;
       };
 
@@ -177,16 +222,7 @@
         container = new createjs.Container();
         stage.addChild(container);
 
-        var query = parseQuery();
-        if (query.speed) {
-          var value = parseInt(query.speed);
-          if (!isNaN(value) && value !== INTERVAL) {
-            INTERVAL = parseInt(query.speed);
-          }
-        } else {
-          query.speed = INTERVAL;
-          location.search = packQuery(query);
-        }
+        setDefaults(parseQuery(location.search));
 
         update();
       };
@@ -200,6 +236,9 @@
         }
 
         // remove previous circles
+        if (ANIMATED) {
+          createjs.Tween.removeAllTweens();
+        }
         container.removeAllChildren();
 
         // add new ones
@@ -215,9 +254,16 @@
 
       init();
 
-      // regenerate on resize and every X seconds
+      // regenerate on resize and every X seconds (if not animated)
       window.addEventListener('resize', update);
-      setInterval(update, INTERVAL);
+      if (!ANIMATED) {
+        createjs.Ticker.interval = INTERVAL;
+        createjs.Ticker.addEventListener('tick', update);
+      } else {
+        createjs.Ticker.framerate = 30;
+        createjs.Ticker.addEventListener('tick', function() { stage.update(); });
+      }
+
     </script>
 </body>
 </html>
